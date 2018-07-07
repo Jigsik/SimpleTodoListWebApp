@@ -19,6 +19,7 @@ extensions:
 	events: Kdyby\Events\DI\EventsExtension
 	annotations: Kdyby\Annotations\DI\AnnotationsExtension
 	doctrine: Kdyby\Doctrine\DI\OrmExtension
+	migrations: Nettrine\Migrations\DI\MigrationsExtension
 
 doctrine:
 	user: root
@@ -26,3 +27,16 @@ doctrine:
 	dbname: todo_list
 	metadata:
 		App: %appDir%
+
+migrations:
+    table: doctrine_migrations
+    column: version
+    directory: %appDir%/../migrations
+    namespace: Migrations
+    versionsOrganization: null # null, year, year_and_month
+
+decorator:
+    Symfony\Component\Console\Command\Command:
+        tags: [kdyby.console.command]
+    Symfony\Component\Console\Helper\Helper:
+        tags: [kdyby.console.helper]
