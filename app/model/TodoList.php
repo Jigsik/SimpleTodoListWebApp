@@ -45,9 +45,20 @@ class TodoList
 	 */
 	protected $created;
 
-	public function __construct(string $name)
+	/**
+	 * @ORM\ManyToOne(
+	 *     targetEntity="User",
+	 *     inversedBy="todoLists"
+	 * )
+	 * @ORM\JoinColumn(name="owner_id", referencedColumnName="id", nullable=false)
+	 * @var User
+	 */
+	protected $owner;
+
+	public function __construct(string $name, User $owner)
 	{
 		$this->name = $name;
+		$this->owner = $owner;
 		$this->created = new \DateTime();
 		$this->tasks = new ArrayCollection();
 	}
