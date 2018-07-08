@@ -13,6 +13,9 @@ session:
 
 services:
 	router: App\RouterFactory::createRouter
+	authenticator: App\Authenticator\Authenticator
+	- App\Functionality\UserFunctionality
+	- App\Functionality\TodoListFunctionality
 
 extensions:
 	console: Kdyby\Console\DI\ConsoleExtension

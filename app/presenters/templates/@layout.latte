@@ -10,6 +10,8 @@
 <body>
 	<div n:foreach="$flashes as $flash" n:class="flash, $flash->type">{$flash->message}</div>
 
+	{ifset $currentUser}Jste Přihlášen jako: {$currentUser->getUsername()} <a n:href="Sign:logout">Odhlásit</a>{/ifset}
+
 	{include content}
 
 	{block scripts}

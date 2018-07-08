@@ -10,6 +10,7 @@ namespace App\Model;
 
 use Nette\Security\IIdentity;
 use Doctrine\ORM\Mapping as ORM;
+use Nette\Security\Passwords;
 
 /**
  * Class User
@@ -43,7 +44,7 @@ class User implements IIdentity
 	{
 		$this->username = $username;
 		$this->email = $email;
-		$this->password = $password;
+		$this->password = Passwords::hash($password);
 	}
 
 	/**
@@ -69,5 +70,13 @@ class User implements IIdentity
 	public function getEmail(): string
 	{
 		return $this->email;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPassword(): string
+	{
+		return $this->password;
 	}
 }
