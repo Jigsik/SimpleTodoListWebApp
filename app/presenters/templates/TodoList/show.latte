@@ -1,0 +1,9 @@
+{block content}
+    <h1>{$todoList->getName()}</h1>
+    <a n:href="newTask $todoList->getId()">Nový úkol</a>
+    <ul>
+        {foreach $todoList->getTasks() as $task}
+            <li>{$task->getName()} done </li>
+        {/foreach}
+    </ul>
+{/block}
