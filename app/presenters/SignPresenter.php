@@ -80,6 +80,16 @@ class SignPresenter extends BasePresenter
 		$this->redirect('TodoList:default', $user->getUsername());
 	}
 
+	/**
+	 * @throws AbortException
+	 */
+	public function actionLogout()
+	{
+		$this->getUser()->logout();
+		$this->flashMessage('Byl jste úspěšně odhlášen.');
+		$this->redirect('Homepage:');
+	}
+
 	public function renderLogin()
 	{
 
