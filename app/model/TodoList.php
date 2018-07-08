@@ -30,7 +30,7 @@ class TodoList
 
 	/**
 	 * @ORM\OneToMany(  targetEntity="Task",
-	 *                  mappedBy="role",
+	 *                  mappedBy="todoList",
 	 *                  cascade={"persist", "remove"},
 	 *                  orphanRemoval=true)
 	 * @var Collection<Task>
@@ -85,5 +85,13 @@ class TodoList
 	public function getCreated(): \DateTime
 	{
 		return $this->created;
+	}
+
+	/**
+	 * @return User
+	 */
+	public function getOwner(): User
+	{
+		return $this->owner;
 	}
 }
