@@ -8,6 +8,7 @@
 
 namespace App\Presenters;
 
+use App\Component\TasksControl;
 use App\Component\TodoListsControl;
 use App\Form\ITaskFormFactory;
 use App\Form\ITodoListFormFactory;
@@ -52,6 +53,20 @@ class TodoListPresenter extends BasePresenter
 	protected function createComponentTodoLists()
 	{
 		$control = new TodoListsControl($this->todoListFunctionality, $this->currentUser);
+		return $control;
+	}
+
+	/**
+	 * @return TasksControl
+	 * @throws \Doctrine\ORM\ORMException
+	 * @throws \Doctrine\ORM\OptimisticLockException
+	 * @throws \Doctrine\ORM\TransactionRequiredException
+	 */
+	protected function createComponentTasks()
+	{
+		$control = new TasksControl();
+		$todoList = $this->todoListFunctionality->getTodoList($this->getParameter('id'));
+		$control->setTodoList($todoList);
 		return $control;
 	}
 
