@@ -64,9 +64,12 @@ class TodoListPresenter extends BasePresenter
 	 */
 	protected function createComponentTasks()
 	{
-		$control = new TasksControl();
+		$control = new TasksControl($this->em, $this->currentUser);
 		$todoList = $this->todoListFunctionality->getTodoList($this->getParameter('id'));
 		$control->setTodoList($todoList);
+		$control->onTaskCompletion[] = function (TasksControl $control, TodoList $todoList) {
+			$this->redirect('TodoList:show', $todoList->getId());
+		};
 		return $control;
 	}
 

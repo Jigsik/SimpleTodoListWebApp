@@ -12,6 +12,7 @@ namespace App\Form;
 use App\Functionality\TodoListFunctionality;
 use App\Model\User;
 use Kdyby\Doctrine\EntityManager;
+use Nette\Application\ForbiddenRequestException;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Form;
 use Nette;
@@ -70,10 +71,7 @@ class TaskForm extends Control
 		 * Do not let users to add tasks to other users TodoList.
 		 */
 		if($todoList->getOwner()->getId() != $this->currentUser->getId())
-		{
-			$this->flashMessage('Nemáte oprávnění přidávat úkoly z TODO listu, který vám nepatří.', 'error');
-			$this->redirect('Homepage:');
-		}
+			throw new ForbiddenRequestException('Nemáte oprávnění přidávat úkoly z TODO listu, který vám nepatří.');
 
 		$this->todoListFunctionality->addTask($todoList, $values['name']);
 		$this->em->flush();

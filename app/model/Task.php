@@ -95,4 +95,12 @@ class Task
 	{
 		return $this->finished;
 	}
+
+	/**
+	 * @return TodoList
+	 */
+	public function getTodoList(): TodoList
+	{
+		return $this->todoList;
+	}
 }

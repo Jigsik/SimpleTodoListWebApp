@@ -1,5 +1,7 @@
 <ul>
     {foreach $tasks as $task}
-        <li>{$task->getName()} done </li>
+        {if !$task->isFinished()}
+            <li>{$task->getName()} <a n:href="markAsCompleted! $task->getId()">Hotovo</a></li>
+        {/if}
     {/foreach}
 </ul>
