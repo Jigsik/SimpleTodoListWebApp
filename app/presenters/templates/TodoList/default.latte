@@ -1,9 +1,5 @@
 {block content}
     <h1>Moje Todo Listy</h1>
     <a n:href="new">Nový</a>
-    <ul>
-        {foreach $todoLists as $todoList}
-            <li><a n:href="show $todoList->getId()">{$todoList->getName()}</li>
-        {/foreach}
-    </ul>
+    {control todoLists}
 {/block}

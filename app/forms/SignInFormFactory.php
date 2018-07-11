@@ -3,24 +3,22 @@
  * Created by PhpStorm.
  * User: OXIT
  * Date: 07.07.2018
- * Time: 12:32
+ * Time: 13:43
  */
 
-namespace App\FormFactory;
+namespace App\Form;
+
 
 use Nette\Application\UI\Form;
 
-class TodoListFormFactory
+class SignInFormFactory
 {
-	/**
-	 * @return Form
-	 */
 	public static function create() : Form
 	{
 		$form = new Form;
-		$form->addText('name', 'Název:');
-		$form->addSubmit('add', 'Přidat');
-
+		$form->addText('name', 'Jméno:');
+		$form->addEmail('email', 'Email:');
+		$form->addPassword('password', 'Heslo:');
 		return $form;
 	}
 }

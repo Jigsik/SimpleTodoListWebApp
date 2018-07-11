@@ -8,10 +8,11 @@
 
 namespace App\Presenters;
 
-use App\FormFactory\TaskFormFactory;
-use App\FormFactory\TodoListFormFactory;
+use App\Component\TodoListsControl;
+use App\Form\ITodoListFormFactory;
+use App\Form\TaskFormFactory;
+use App\Form\TodoListForm;
 use App\Functionality\TodoListFunctionality;
-use App\Model\Task;
 use App\Model\TodoList;
 use Nette\Application\AbortException;
 use Nette\Application\UI\Form;
@@ -21,27 +22,17 @@ class TodoListPresenter extends BasePresenter
 	/** @var TodoListFunctionality @inject */
 	public $todoListFunctionality;
 
-	/**
-	 * @return Form
-	 */
-	public function createComponentTodoListForm(): Form
-	{
-		$form = TodoListFormFactory::create();
-		$form->onSuccess[] = [$this, 'todoListFormSucceeded'];
-		return $form;
-	}
+	/** @var ITodoListFormFactory @inject */
+	public $todoListFormFactory;
 
-	/**
-	 * @param Form $form
-	 * @param array $values
-	 * @throws \Exception
-	 */
-	public function todoListFormSucceeded(Form $form, array $values)
+	public function createComponentTodoListForm()
 	{
-		/** @var TodoList $todoList */
-		$todoList = $this->todoListFunctionality->create($values, $this->currentUser);
-		$this->em->flush(TodoList::class);
-		$this->redirect('show', $todoList->getId());
+		$form = $this->todoListFormFactory->create();
+		$form->onTodoListSave[] = function (TodoListForm $form, TodoList $todoList) {
+			$this->redirect('show', $todoList->getId());
+		};
+
+		return $form;
 	}
 
 	public function createComponentTaskForm() : Form
@@ -69,10 +60,15 @@ class TodoListPresenter extends BasePresenter
 			$this->redirect('Homepage:');
 		}
 
-		$task = new Task($values['name'], $todoList);
-		$this->em->persist($task);
+		$this->todoListFunctionality->addTask($todoList, $values['name']);
 		$this->em->flush();
 		$this->redirect('show', $todoList->getId());
+	}
+
+	protected function createComponentTodoLists()
+	{
+		$control = new TodoListsControl($this->todoListFunctionality, $this->currentUser);
+		return $control;
 	}
 
 	/**
@@ -86,8 +82,6 @@ class TodoListPresenter extends BasePresenter
 			$this->flashMessage('Nemáte oprávnění vidět tuto stránku.', 'error');
 			$this->redirect('Homepage:');
 		}
-
-		$this->template->todoLists = $this->todoListFunctionality->getTodoListByUser($this->currentUser);
 	}
 
 	public function renderNew()

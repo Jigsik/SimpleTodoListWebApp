@@ -29,8 +29,7 @@ class Task
 	/**
 	 * @ORM\ManyToOne(
 	 *     targetEntity="TodoList",
-	 *     inversedBy="tasks",
-	 *     cascade={"persist"})
+	 *     inversedBy="tasks")
 	 * @ORM\JoinColumn(name="todo_list_id", referencedColumnName="id", nullable=false)
 	 * @var TodoList
 	 */
@@ -50,10 +49,9 @@ class Task
 	 */
 	protected $finished = false;
 
-	public function __construct(string $name, TodoList $todoList)
+	public function __construct(string $name)
 	{
 		$this->name = $name;
-		$this->todoList = $todoList;
 		$this->created = new \DateTime();
 	}
 

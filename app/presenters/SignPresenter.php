@@ -9,7 +9,7 @@
 namespace App\Presenters;
 
 
-use App\FormFactory\SignInFormFactory;
+use App\Form\SignInFormFactory;
 use Nette\Application\AbortException;
 use Nette\Application\UI\Form;
 use Nette\Forms\Controls\SubmitButton;

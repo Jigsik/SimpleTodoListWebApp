@@ -8,6 +8,7 @@
 
 namespace App\Functionality;
 
+use App\Model\Task;
 use App\Model\TodoList;
 use App\Model\User;
 use Kdyby\Doctrine\EntityManager;
@@ -23,13 +24,13 @@ class TodoListFunctionality extends BaseFunctionality
 	}
 
 	/**
-	 * @param array $values
+	 * @param string $name
 	 * @param User $user
 	 * @return TodoList
 	 */
-	public function create(array $values, User $user) : TodoList
+	public function create(string $name, User $user) : TodoList
 	{
-		$todoList = new TodoList($values['name'], $user);
+		$todoList = new TodoList($name, $user);
 		$this->em->persist($todoList);
 		return $todoList;
 	}
@@ -56,5 +57,12 @@ class TodoListFunctionality extends BaseFunctionality
 	{
 		$todoLists = $this->repository->findBy([ 'owner' => $currentUser ]);
 		return $todoLists;
+	}
+
+	public function addTask(TodoList $todoList, string $name)
+	{
+		$task = new Task($name);
+		$todoList->addTask($task);
+		$this->em->persist($todoList);
 	}
 }

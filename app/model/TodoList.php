@@ -94,4 +94,10 @@ class TodoList
 	{
 		return $this->owner;
 	}
+
+	public function addTask($task) : TodoList
+	{
+		$this->tasks->add($task);
+		return $this;
+	}
 }

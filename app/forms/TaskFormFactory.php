@@ -6,7 +6,7 @@
  * Time: 13:21
  */
 
-namespace App\FormFactory;
+namespace App\Form;
 
 
 use Nette\Application\UI\Form;

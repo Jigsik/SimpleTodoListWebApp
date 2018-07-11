@@ -12,6 +12,7 @@ use App\Functionality\UserFunctionality;
 use App\Model\User;
 use Kdyby\Doctrine\EntityManager;
 use Nette;
+use Nette\Application\AbortException;
 
 class BasePresenter extends Nette\Application\UI\Presenter
 {
@@ -26,10 +27,7 @@ class BasePresenter extends Nette\Application\UI\Presenter
 
 	/**
 	 * @param bool $skipAuthorization
-	 * @throws \Doctrine\ORM\ORMException
-	 * @throws \Doctrine\ORM\OptimisticLockException
-	 * @throws \Doctrine\ORM\TransactionRequiredException
-	 * @throws Nette\Application\AbortException
+	 * @throws AbortException
 	 */
 	public function startup(bool $skipAuthorization = false)
 	{
@@ -37,7 +35,7 @@ class BasePresenter extends Nette\Application\UI\Presenter
 		if (!$skipAuthorization)
 		{
 			if ($this->getUser()->isLoggedIn()) {
-				$this->currentUser = $this->userFunctionality->getUser($this->getUser()->getId());
+				$this->currentUser = $this->getUser()->getIdentity();
 				$this->template->currentUser = $this->currentUser;
 			} else {
 				$this->redirect('Sign:login');
