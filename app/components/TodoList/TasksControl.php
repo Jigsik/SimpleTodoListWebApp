@@ -26,7 +26,7 @@ class TasksControl extends \Nette\Application\UI\Control
 	/** @var TodoList */
 	protected $todoList;
 
-	public $onTaskCompletion;
+	public $onTaskChange;
 
 	public function __construct(EntityManager $em, User $user)
 	{
@@ -67,6 +67,28 @@ class TasksControl extends \Nette\Application\UI\Control
 		$this->em->persist($task);
 		$this->em->flush($task);
 
-		$this->onTaskCompletion($this, $task->getTodoList());
+		$this->onTaskChange($this, $task->getTodoList());
+	}
+
+	/**
+	 * @param int $taskId
+	 * @throws ForbiddenRequestException
+	 * @throws \Doctrine\ORM\ORMException
+	 * @throws \Doctrine\ORM\OptimisticLockException
+	 * @throws \Doctrine\ORM\TransactionRequiredException
+	 * @throws \Exception
+	 */
+	public function handleDelete(int $taskId)
+	{
+		/** @var Task $task */
+		$task = $this->em->find(Task::class, $taskId);
+
+		if($task->getTodoList()->getOwner()->getId() != $this->currentUser->getId())
+			throw new ForbiddenRequestException('Nemáte oprávnění pracovat s úkoly, které vám nepatří.');
+
+		$this->em->remove($task);
+		$this->em->flush($task);
+
+		$this->onTaskChange($this, $task->getTodoList());
 	}
 }

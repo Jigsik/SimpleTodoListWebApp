@@ -15,6 +15,7 @@ use App\Form\ITodoListFormFactory;
 use App\Form\TaskForm;
 use App\Form\TodoListForm;
 use App\Functionality\TodoListFunctionality;
+use App\Model\Task;
 use App\Model\TodoList;
 use Nette\Application\AbortException;
 
@@ -39,10 +40,18 @@ class TodoListPresenter extends BasePresenter
 		return $form;
 	}
 
+	/**
+	 * @return TaskForm
+	 * @throws \Doctrine\ORM\ORMException
+	 * @throws \Doctrine\ORM\OptimisticLockException
+	 * @throws \Doctrine\ORM\TransactionRequiredException
+	 */
 	public function createComponentTaskForm()
 	{
 		$form = $this->taskFormFactory->create();
-		$form->setTodoListId($this->getParameter('todoListId'));
+		$todoListId = $this->getParameter('todoListId');
+		if($todoListId) $form->setTodoList($this->todoListFunctionality->getTodoList($todoListId));
+		$form->setTask($this->em->find(Task::class, $this->getParameter('id')));
 		$form->onTaskSave[] = function (TaskForm $form, TodoList $todoList) {
 			$this->redirect('show', $todoList->getId());
 		};
@@ -67,7 +76,7 @@ class TodoListPresenter extends BasePresenter
 		$control = new TasksControl($this->em, $this->currentUser);
 		$todoList = $this->todoListFunctionality->getTodoList($this->getParameter('id'));
 		$control->setTodoList($todoList);
-		$control->onTaskCompletion[] = function (TasksControl $control, TodoList $todoList) {
+		$control->onTaskChange[] = function (TasksControl $control, TodoList $todoList) {
 			$this->redirect('TodoList:show', $todoList->getId());
 		};
 		return $control;
@@ -105,6 +114,11 @@ class TodoListPresenter extends BasePresenter
 	}
 
 	public function renderNewTask(int $todoListId)
+	{
+
+	}
+
+	public function renderEditTask(int $id)
 	{
 
 	}

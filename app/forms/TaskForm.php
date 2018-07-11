@@ -10,6 +10,8 @@ namespace App\Form;
 
 
 use App\Functionality\TodoListFunctionality;
+use App\Model\Task;
+use App\Model\TodoList;
 use App\Model\User;
 use Kdyby\Doctrine\EntityManager;
 use Nette\Application\ForbiddenRequestException;
@@ -28,8 +30,11 @@ class TaskForm extends Control
 	/** @var User */
 	protected $currentUser;
 
-	/** @var integer */
-	protected $todoListId;
+	/** @var TodoList */
+	protected $todoList;
+
+	/** @var Task */
+	protected $task = null;
 
 	public $onTaskSave;
 
@@ -48,12 +53,23 @@ class TaskForm extends Control
 		$form->addSubmit('add', 'Přidat');
 		$form->onSuccess[] = [$this, 'processForm'];
 
+		if($this->task != null) {
+			$form->setDefaults([
+				'name' => $this->task->getName()
+			]);
+		}
+
 		return $form;
 	}
 
-	public function setTodoListId(int $id)
+	public function setTodoList(TodoList $todoList)
 	{
-		$this->todoListId = $id;
+		$this->todoList = $todoList;
+	}
+
+	public function setTask(Task $task)
+	{
+		$this->task = $task;
 	}
 
 	/**
@@ -63,19 +79,25 @@ class TaskForm extends Control
 	 */
 	public function processForm(Form $form, array $values)
 	{
-		$todoList = $this->todoListFunctionality->getTodoList($this->todoListId);
+		if($this->task) $this->todoList = $this->task->getTodoList();
 
-		if(!$todoList) $this->error('TODO list s tímto ID neexistuje');
+		if(!$this->todoList) $this->error('TODO list s tímto ID neexistuje');
 
 		/*
 		 * Do not let users to add tasks to other users TodoList.
 		 */
-		if($todoList->getOwner()->getId() != $this->currentUser->getId())
+		if($this->todoList->getOwner()->getId() != $this->currentUser->getId())
 			throw new ForbiddenRequestException('Nemáte oprávnění přidávat úkoly z TODO listu, který vám nepatří.');
 
-		$this->todoListFunctionality->addTask($todoList, $values['name']);
+		if($this->task) {
+			$this->task->setName($values['name']);
+			$this->em->persist($this->task);
+		} else {
+			$this->todoListFunctionality->addTask($this->todoList, $values['name']);
+		}
+
 		$this->em->flush();
-		$this->onTaskSave($this, $todoList);
+		$this->onTaskSave($this, $this->todoList);
 	}
 
 	public function render()

@@ -1,7 +1,7 @@
 <ul>
     {foreach $tasks as $task}
         {if !$task->isFinished()}
-            <li>{$task->getName()} <a n:href="markAsCompleted! $task->getId()">Hotovo</a></li>
+            <li>{$task->getCreated()->format('Y-m-d H:m')}: {$task->getName()} <a href="{plink TodoList:editTask $task->getId()}">Editovat</a> <a n:href="markAsCompleted! $task->getId()">Hotovo</a> --<a n:href="delete! $task->getId()">Smazat</a>--</li>
         {/if}
     {/foreach}
 </ul>
