@@ -42,7 +42,7 @@ class TodoListFunctionality extends BaseFunctionality
 	 * @throws \Doctrine\ORM\OptimisticLockException
 	 * @throws \Doctrine\ORM\TransactionRequiredException
 	 */
-	public function getTodoList($id) : TodoList
+	public function getTodoList($id) : ?TodoList
 	{
 		/** @var TodoList $todoList */
 		$todoList = $this->em->find(TodoList::class, $id);
@@ -61,7 +61,7 @@ class TodoListFunctionality extends BaseFunctionality
 
 	public function addTask(TodoList $todoList, string $name)
 	{
-		$task = new Task($name);
+		$task = new Task($name, $todoList);
 		$todoList->addTask($task);
 		$this->em->persist($todoList);
 	}

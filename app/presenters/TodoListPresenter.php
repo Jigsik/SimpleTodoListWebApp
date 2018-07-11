@@ -9,13 +9,13 @@
 namespace App\Presenters;
 
 use App\Component\TodoListsControl;
+use App\Form\ITaskFormFactory;
 use App\Form\ITodoListFormFactory;
-use App\Form\TaskFormFactory;
+use App\Form\TaskForm;
 use App\Form\TodoListForm;
 use App\Functionality\TodoListFunctionality;
 use App\Model\TodoList;
 use Nette\Application\AbortException;
-use Nette\Application\UI\Form;
 
 class TodoListPresenter extends BasePresenter
 {
@@ -24,6 +24,9 @@ class TodoListPresenter extends BasePresenter
 
 	/** @var ITodoListFormFactory @inject */
 	public $todoListFormFactory;
+
+	/** @var ITaskFormFactory @inject */
+	public $taskFormFactory;
 
 	public function createComponentTodoListForm()
 	{
@@ -35,34 +38,15 @@ class TodoListPresenter extends BasePresenter
 		return $form;
 	}
 
-	public function createComponentTaskForm() : Form
+	public function createComponentTaskForm()
 	{
-		$form = TaskFormFactory::create();
-		$form->onSuccess[] = [$this, 'taskFormSucceeded'];
+		$form = $this->taskFormFactory->create();
+		$form->setTodoListId($this->getParameter('todoListId'));
+		$form->onTaskSave[] = function (TaskForm $form, TodoList $todoList) {
+			$this->redirect('show', $todoList->getId());
+		};
+
 		return $form;
-	}
-
-	/**
-	 * @param Form $form
-	 * @param array $values
-	 * @throws \Doctrine\ORM\ORMException
-	 * @throws \Doctrine\ORM\OptimisticLockException
-	 * @throws \Doctrine\ORM\TransactionRequiredException
-	 * @throws \Exception
-	 */
-	public function taskFormSucceeded(Form $form, array $values)
-	{
-		$todoList = $this->todoListFunctionality->getTodoList($this->getParameters()['todoListId']);
-
-		if($todoList->getOwner()->getId() != $this->currentUser->getId())
-		{
-			$this->flashMessage('Nemáte oprávnění vidět tuto stránku.', 'error');
-			$this->redirect('Homepage:');
-		}
-
-		$this->todoListFunctionality->addTask($todoList, $values['name']);
-		$this->em->flush();
-		$this->redirect('show', $todoList->getId());
 	}
 
 	protected function createComponentTodoLists()
@@ -75,11 +59,24 @@ class TodoListPresenter extends BasePresenter
 	 * @param string $username
 	 * @throws AbortException
 	 */
-	public function renderDefault(string $username)
+	public function renderDefault(string $username = null)
 	{
+		/*
+		 * Automatically get username attribute if user is logged in.
+		 * In some cases it would be better to redirect user with correct parameter,
+		 * but this is faster option.
+		 */
+		if ($username == null && $this->currentUser != null)
+		{
+			$username = $this->currentUser->getUsername();
+		}
+
+		/*
+		 * Do not let user to access other users TodoList.
+		 */
 		if ($this->currentUser->getUsername() != $username)
 		{
-			$this->flashMessage('Nemáte oprávnění vidět tuto stránku.', 'error');
+			$this->flashMessage('Nemáte oprávnění vidět TODO list jiného uživatele.', 'error');
 			$this->redirect('Homepage:');
 		}
 	}

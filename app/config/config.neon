@@ -17,6 +17,7 @@ services:
 	- App\Functionality\UserFunctionality
 	- App\Functionality\TodoListFunctionality
 	- App\Form\ITodoListFormFactory
+	- App\Form\ITaskFormFactory
 
 extensions:
 	console: Kdyby\Console\DI\ConsoleExtension

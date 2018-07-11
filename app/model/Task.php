@@ -49,10 +49,11 @@ class Task
 	 */
 	protected $finished = false;
 
-	public function __construct(string $name)
+	public function __construct(string $name, TodoList $todoList)
 	{
 		$this->name = $name;
 		$this->created = new \DateTime();
+		$this->todoList = $todoList;
 	}
 
 	/**
