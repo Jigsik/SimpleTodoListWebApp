@@ -23,13 +23,13 @@ class User implements IIdentity
 	use \Kdyby\Doctrine\Entities\Attributes\Identifier;
 
 	/**
-	 * @ORM\Column(type="string")
+	 * @ORM\Column(type="string", unique=true)
 	 * @var string
 	 */
 	protected $username;
 
 	/**
-	 * @ORM\Column(type="string")
+	 * @ORM\Column(type="string", unique=true)
 	 * @var string
 	 */
 	protected $email;

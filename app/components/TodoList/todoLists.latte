@@ -1,5 +1,5 @@
 <ul>
     {foreach $todoLists as $todoList}
-        <li><a href="{plink TodoList:show $todoList->getId()}">{$todoList->getName()}</li>
+        <li><a href="{plink TodoListTasks: $todoList->getId()}">{$todoList->getName()}</li>
     {/foreach}
 </ul>

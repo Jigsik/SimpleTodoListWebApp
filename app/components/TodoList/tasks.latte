@@ -1,7 +1,38 @@
-<ul>
+<table>
+    <tr>
+        <th>Vytvořeno</th>
+        <th>Název</th>
+        <th></th>
+        <th></th>
+        <th></th>
+    </tr>
     {foreach $tasks as $task}
         {if !$task->isFinished()}
-            <li>{$task->getCreated()->format('Y-m-d H:m')}: {$task->getName()} <a href="{plink TodoList:editTask $task->getId()}">Editovat</a> <a n:href="markAsCompleted! $task->getId()">Hotovo</a> --<a n:href="delete! $task->getId()">Smazat</a>--</li>
+            <tr>
+                <td>{$task->getCreated()->format('Y-m-d H:m')}</td>
+                <td>{$task->getName()}</td>
+                <td><a href="{plink TodoListTasks:editTask $task->getId()}">Editovat</a></td>
+                <td><a n:href="markAsCompleted! $task->getId()">Hotovo</a></td>
+                <td><a n:href="delete! $task->getId()">Smazat</a></td>
+            </tr>
         {/if}
     {/foreach}
-</ul>
+</table>
+
+<div class="pagination">
+    {if !$paginator->isFirst()}
+        <a n:href="changePage!, 1">První</a>
+        &nbsp;|&nbsp;
+        <a n:href="changePage!, $paginator->page-1">Předchozí</a>
+        &nbsp;|&nbsp;
+    {/if}
+
+    Stránka {$paginator->page} z {$paginator->pageCount}
+
+    {if !$paginator->isLast()}
+        &nbsp;|&nbsp;
+        <a n:href="changePage!, $paginator->page+1">Další</a>
+        &nbsp;|&nbsp;
+        <a n:href="changePage!, $paginator->pageCount">Poslední</a>
+    {/if}
+</div>

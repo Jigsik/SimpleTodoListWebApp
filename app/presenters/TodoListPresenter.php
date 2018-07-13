@@ -8,14 +8,10 @@
 
 namespace App\Presenters;
 
-use App\Component\TasksControl;
 use App\Component\TodoListsControl;
-use App\Form\ITaskFormFactory;
 use App\Form\ITodoListFormFactory;
-use App\Form\TaskForm;
 use App\Form\TodoListForm;
 use App\Functionality\TodoListFunctionality;
-use App\Model\Task;
 use App\Model\TodoList;
 use Nette\Application\AbortException;
 
@@ -27,9 +23,6 @@ class TodoListPresenter extends BasePresenter
 	/** @var ITodoListFormFactory @inject */
 	public $todoListFormFactory;
 
-	/** @var ITaskFormFactory @inject */
-	public $taskFormFactory;
-
 	public function createComponentTodoListForm()
 	{
 		$form = $this->todoListFormFactory->create();
@@ -40,45 +33,9 @@ class TodoListPresenter extends BasePresenter
 		return $form;
 	}
 
-	/**
-	 * @return TaskForm
-	 * @throws \Doctrine\ORM\ORMException
-	 * @throws \Doctrine\ORM\OptimisticLockException
-	 * @throws \Doctrine\ORM\TransactionRequiredException
-	 */
-	public function createComponentTaskForm()
-	{
-		$form = $this->taskFormFactory->create();
-		$todoListId = $this->getParameter('todoListId');
-		if($todoListId) $form->setTodoList($this->todoListFunctionality->getTodoList($todoListId));
-		$form->setTask($this->em->find(Task::class, $this->getParameter('id')));
-		$form->onTaskSave[] = function (TaskForm $form, TodoList $todoList) {
-			$this->redirect('show', $todoList->getId());
-		};
-
-		return $form;
-	}
-
 	protected function createComponentTodoLists()
 	{
 		$control = new TodoListsControl($this->todoListFunctionality, $this->currentUser);
-		return $control;
-	}
-
-	/**
-	 * @return TasksControl
-	 * @throws \Doctrine\ORM\ORMException
-	 * @throws \Doctrine\ORM\OptimisticLockException
-	 * @throws \Doctrine\ORM\TransactionRequiredException
-	 */
-	protected function createComponentTasks()
-	{
-		$control = new TasksControl($this->em, $this->currentUser);
-		$todoList = $this->todoListFunctionality->getTodoList($this->getParameter('id'));
-		$control->setTodoList($todoList);
-		$control->onTaskChange[] = function (TasksControl $control, TodoList $todoList) {
-			$this->redirect('TodoList:show', $todoList->getId());
-		};
 		return $control;
 	}
 
@@ -111,35 +68,5 @@ class TodoListPresenter extends BasePresenter
 	public function renderNew()
 	{
 
-	}
-
-	public function renderNewTask(int $todoListId)
-	{
-
-	}
-
-	public function renderEditTask(int $id)
-	{
-
-	}
-
-	/**
-	 * @param int $id
-	 * @throws \Doctrine\ORM\ORMException
-	 * @throws \Doctrine\ORM\OptimisticLockException
-	 * @throws \Doctrine\ORM\TransactionRequiredException
-	 * @throws AbortException
-	 */
-	public function renderShow(int $id)
-	{
-		$todoList = $this->todoListFunctionality->getTodoList($id);
-
-		if($this->currentUser->getId() != $todoList->getOwner()->getId())
-		{
-			$this->flashMessage('Nemáte oprávnění vidět tuto stránku.', 'error');
-			$this->redirect('Homepage:');
-		}
-
-		$this->template->todoList = $todoList;
 	}
 }

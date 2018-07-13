@@ -9,16 +9,22 @@
 namespace App\Component;
 
 
+use App\Functionality\TodoListFunctionality;
 use App\Model\Task;
 use App\Model\TodoList;
 use App\Model\User;
 use Kdyby\Doctrine\EntityManager;
+use Nette\Application\AbortException;
 use Nette\Application\ForbiddenRequestException;
+use Nette;
 
 class TasksControl extends \Nette\Application\UI\Control
 {
 	/** @var EntityManager */
 	protected $em;
+
+	/** @var TodoListFunctionality */
+	protected $todoListFunctionality;
 
 	/** @var User */
 	protected $currentUser;
@@ -26,25 +32,42 @@ class TasksControl extends \Nette\Application\UI\Control
 	/** @var TodoList */
 	protected $todoList;
 
+	/** @var int @persistent */
+	public $page = 1;
+
 	public $onTaskChange;
 
-	public function __construct(EntityManager $em, User $user)
+	public function __construct(EntityManager $em, TodoListFunctionality $todoListFunctionality, Nette\Security\User $user,
+															int $todoListId)
 	{
 		parent::__construct();
 		$this->em = $em;
-		$this->currentUser = $user;
+		$this->currentUser = $user->getIdentity();
+		$this->todoListFunctionality = $todoListFunctionality;
+		$this->todoList = $this->todoListFunctionality->getTodoList($todoListId);
 	}
 
-	public function setTodoList(TodoList $todoList)
-	{
-		$this->todoList = $todoList;
-	}
 
+	/**
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
 	public function render()
 	{
 		$template = $this->template;
 		$template->setFile(__DIR__ . '/tasks.latte');
-		$template->tasks = $this->todoList->getTasks();
+
+		$tasksCount = $this->todoListFunctionality->getNotCompletedTasksCount($this->todoList->getId());
+		$paginator = new Nette\Utils\Paginator;
+		$paginator->setItemCount($tasksCount);
+		$paginator->setItemsPerPage(5);
+		$paginator->setPage($this->page);
+
+		// Get tasks according to pagination;
+		$tasks = $this->todoList->getTasks();
+
+		$template->tasks = $tasks->slice($paginator->offset, $paginator->length);
+		$template->paginator = $paginator;
+
 		$template->render();
 	}
 
@@ -91,4 +114,23 @@ class TasksControl extends \Nette\Application\UI\Control
 
 		$this->onTaskChange($this, $task->getTodoList());
 	}
+
+	/**
+	 * @param int $page
+	 * @throws AbortException
+	 */
+	public function handleChangePage(int $page)
+	{
+		$this->page = $page;
+		$this->redirect('this');
+	}
+}
+
+interface ITasksControlFactory
+{
+	/**
+	 * @param int $todoListId
+	 * @return TasksControl
+	 */
+	function create(int $todoListId);
 }

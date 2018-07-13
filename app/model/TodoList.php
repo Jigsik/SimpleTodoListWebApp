@@ -10,6 +10,7 @@ namespace App\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -76,7 +77,9 @@ class TodoList
 	 */
 	public function getTasks(): Collection
 	{
-		return $this->tasks;
+		$criteria = Criteria::create();
+		$criteria->where(Criteria::expr()->eq('finished', false));
+		return $this->tasks->matching($criteria);
 	}
 
 	/**

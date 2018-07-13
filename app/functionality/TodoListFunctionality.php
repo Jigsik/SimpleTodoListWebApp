@@ -38,14 +38,11 @@ class TodoListFunctionality extends BaseFunctionality
 	/**
 	 * @param $id
 	 * @return TodoList
-	 * @throws \Doctrine\ORM\ORMException
-	 * @throws \Doctrine\ORM\OptimisticLockException
-	 * @throws \Doctrine\ORM\TransactionRequiredException
 	 */
 	public function getTodoList($id) : ?TodoList
 	{
 		/** @var TodoList $todoList */
-		$todoList = $this->em->find(TodoList::class, $id);
+		$todoList = $this->repository->find($id);
 		return $todoList;
 	}
 
@@ -64,5 +61,33 @@ class TodoListFunctionality extends BaseFunctionality
 		$task = new Task($name, $todoList);
 		$todoList->addTask($task);
 		$this->em->persist($todoList);
+	}
+
+	public function getTask($id) : ?Task
+	{
+		if($id == NULL) return NULL;
+
+		/** @var Task $task */
+		$task = $this->em->getRepository(Task::class)->find($id);
+		return $task;
+	}
+
+	/**
+	 * @param int $todoListId
+	 * @return int
+	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 */
+	public function getNotCompletedTasksCount($todoListId): int
+	{
+		$qb = $this->em->createQueryBuilder();
+		$query = $qb
+			->select('count(t.id)')
+			->from('App\Model\Task', 't')
+			->where('t.finished = false')
+			->andWhere('t.todoList = :todoList')
+			->setParameter('todoList', $this->repository->getReference($todoListId))
+			->getQuery();
+
+		return $query->getSingleScalarResult();
 	}
 }
