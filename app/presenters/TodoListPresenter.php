@@ -27,7 +27,7 @@ class TodoListPresenter extends BasePresenter
 	{
 		$form = $this->todoListFormFactory->create();
 		$form->onTodoListSave[] = function (TodoListForm $form, TodoList $todoList) {
-			$this->redirect('show', $todoList->getId());
+			$this->redirect('TodoListTasks:', $todoList->getId());
 		};
 
 		return $form;
@@ -61,7 +61,7 @@ class TodoListPresenter extends BasePresenter
 		if ($this->currentUser->getUsername() != $username)
 		{
 			$this->flashMessage('Nemáte oprávnění vidět TODO list jiného uživatele.', 'error');
-			$this->redirect('Homepage:');
+			$this->redirect('TodoList:');
 		}
 	}
 
