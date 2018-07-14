@@ -94,7 +94,7 @@ class SignPresenter extends BasePresenter
 	{
 		$this->getUser()->logout();
 		$this->flashMessage('Byl jste úspěšně odhlášen.');
-		$this->redirect('Homepage:');
+		$this->redirect('login');
 	}
 
 	public function renderLogin()
