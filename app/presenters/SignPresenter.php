@@ -9,6 +9,7 @@
 namespace App\Presenters;
 
 
+use App\Exceptions\ValidationException;
 use App\Form\SignInFormFactory;
 use Nette\Application\AbortException;
 use Nette\Application\UI\Form;
@@ -58,11 +59,17 @@ class SignPresenter extends BasePresenter
 		$form = $button->getForm();
 		$values = $form->getValues(true);
 
-		$this->userFunctionality->register($values['username'] ?? 'Random Username', $values['email'], $values['password']);
-		$this->em->flush();
 		try {
-			$this->login($values['email'], $values['password']);
-		} catch (AuthenticationException $e) {
+			$this->userFunctionality->register($values['username'] ?? 'Random Username', $values['email'], $values['password']);
+
+			$this->em->flush();
+
+			try {
+				$this->login($values['email'], $values['password']);
+			} catch (AuthenticationException $e) {
+				$form->addError($e->getMessage());
+			}
+		} catch (ValidationException $e) {
 			$form->addError($e->getMessage());
 		}
 	}

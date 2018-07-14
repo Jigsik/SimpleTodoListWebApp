@@ -16,7 +16,7 @@ class SignInFormFactory
 	public static function create() : Form
 	{
 		$form = new Form;
-		$form->addText('name', 'Jméno:');
+		$form->addText('username', 'Jméno:');
 		$form->addEmail('email', 'Email:');
 		$form->addPassword('password', 'Heslo:');
 		return $form;
